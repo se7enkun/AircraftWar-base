@@ -23,6 +23,7 @@ public class Game extends JPanel {
 
     private int backGroundTop = 0;
     private List<AbstractProp> props = new LinkedList<>();
+    //private List<Item> props = new LinkedList<>(); // 使用接口类型作为容器
     //调度器, 用于定时任务调度
     private final Timer timer;
     //时间间隔(ms)，控制刷新频率
@@ -197,20 +198,32 @@ public class Game extends JPanel {
                     enemyAircraft.decreaseHp(bullet.getPower());
                     bullet.vanish();
                     if (enemyAircraft.notValid()) {
-                        // TODO 获得分数，产生道具补给
+                        // 1. 增加分数
+                        score += 10;
+
+                        // 2. 产生道具补给逻辑重构
                         if (enemyAircraft instanceof EliteEnemy) {
-                            if (Math.random() < 0.5) { // 50% 概率生成道具
-                                int type = (int) (Math.random() * 3); // 随机 0, 1, 2
-                                AbstractProp prop;
-                                if (type == 0) prop = new HpProp(enemyAircraft.getLocationX(), enemyAircraft.getLocationY(),0,2);
-                                else if (type == 1) prop = new FireProp(enemyAircraft.getLocationX(), enemyAircraft.getLocationY(),0,2);
-                                else {
-                                    prop = new SuperFireProp(enemyAircraft.getLocationX(), enemyAircraft.getLocationY(),0,2);
+                            // 50% 概率生成道具
+                            if (Math.random() < 0.5) {
+                                // 随机决定生成的道具类型（对应工厂类中的 String 参数）
+                                String[] propTypes = {"HP", "FIRE", "SUPER_FIRE", "BOMB"};
+                                String randomType = propTypes[(int) (Math.random() * propTypes.length)];
+
+                                // 使用简单工厂创建道具（返回的是接口 Item，但因为要加入 props 列表，通常强转或直接用其子类引用）
+                                // 这里的参数 0, 2 对应 speedX 和 speedY
+                                AbstractProp prop = (AbstractProp) propFactory.createProp(
+                                        randomType,
+                                        enemyAircraft.getLocationX(),
+                                        enemyAircraft.getLocationY(),
+                                        0,
+                                        2
+                                );
+
+                                if (prop != null) {
+                                    props.add(prop); // 将重构后的道具加入列表
                                 }
-                                props.add(prop); // 将道具加入道具列表
                             }
                         }
-                        score += 10;
                     }
                 }
                 // 英雄机 与 敌机 相撞，均损毁
