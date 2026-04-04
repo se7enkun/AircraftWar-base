@@ -1,4 +1,4 @@
-
+package edu.hitsz.aircraft;
 
 import edu.hitsz.aircraft.AbstractAircraft;
 
