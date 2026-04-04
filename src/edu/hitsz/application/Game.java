@@ -221,7 +221,7 @@ public class Game extends JPanel {
 
 
                                     props.add(prop); // 将重构后的道具加入列表
-                                
+
                             }
                         }
                     }
@@ -271,7 +271,7 @@ public class Game extends JPanel {
             gameOverFlag = true;
             System.out.println("Game Over!");
         }
-    };
+    }
 
     //***********************
     //      Paint 各部分
