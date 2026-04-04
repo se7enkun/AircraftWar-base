@@ -1,6 +1,8 @@
 package edu.hitsz.application;
 
 import edu.hitsz.aircraft.*;
+import edu.hitsz.aircraft.enemy.AceEnemy;
+import edu.hitsz.aircraft.enemy.ExcellentEnemy;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
 import edu.hitsz.aircraft.enemy.EliteEnemy;
@@ -82,20 +84,22 @@ public class Game extends JPanel {
                     enemySpawnCounter = 0;
                     // 产生敌机
                     if (enemyAircrafts.size() < enemyMaxNumber) {
-                        if (Math.random() < 0.2) { // 20% 概率生成精英敌机
-                            enemyAircrafts.add(new EliteEnemy((int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())),
-                                    (int) (Math.random() * Main.WINDOW_HEIGHT * 0.05),
-                                    0,
-                                    10,
-                                    30));
+                        edu.hitsz.factory.EnemyFactory enemyFactory; // 声明抽象工厂接口
+                        double rand = Math.random();
+
+                        // 根据概率决定使用哪个具体工厂
+                        if (rand < 0.15) {
+                            enemyFactory = new AceEnemyFactory();
+                        } else if (rand < 0.25) {
+                            enemyFactory = new ExcellentEnemyFactory();
+                        } else if (rand < 0.45) {
+                            enemyFactory = new EliteEnemyFactory();
+                        } else {
+                            enemyFactory = new MobEnemyFactory();
                         }
-                        else{enemyAircrafts.add(new MobEnemy(
-                                (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())),
-                                (int) (Math.random() * Main.WINDOW_HEIGHT * 0.05),
-                                0,
-                                10,
-                                30
-                        ));}
+
+                        // 使用工厂生产敌机，不再直接 new 具体类
+                        enemyAircrafts.add(enemyFactory.createEnemy());
                     }
                 }
 
@@ -135,7 +139,8 @@ public class Game extends JPanel {
             heroBullets.addAll(heroAircraft.shoot());
             // TODO 敌机射击
             for (AbstractAircraft enemy : enemyAircrafts) {
-                if (enemy instanceof EliteEnemy) {
+                if (enemy instanceof EliteEnemy || enemy instanceof ExcellentEnemy ||
+                        enemy instanceof AceEnemy) {
                     enemyBullets.addAll(enemy.shoot());
                 }
             }
@@ -198,31 +203,29 @@ public class Game extends JPanel {
                     enemyAircraft.decreaseHp(bullet.getPower());
                     bullet.vanish();
                     if (enemyAircraft.notValid()) {
-                        // 1. 增加分数
                         score += 10;
 
-                        // 2. 产生道具补给逻辑重构
-                        if (enemyAircraft instanceof EliteEnemy) {
-                            // 50% 概率生成道具
-                            if (Math.random() < 0.5) {
-                                // 随机决定生成的道具类型（对应工厂类中的 String 参数）
-                                String[] propTypes = {"HP", "FIRE", "SUPER_FIRE", "BOMB"};
-                                String randomType = propTypes[(int) (Math.random() * propTypes.length)];
+                        String randomType = null;
+                        double propRand = Math.random();
 
-                                // 使用简单工厂创建道具（返回的是接口 Item，但因为要加入 props 列表，通常强转或直接用其子类引用）
-                                // 这里的参数 0, 2 对应 speedX 和 speedY
-                                AbstractProp prop = (AbstractProp) propFactory.createProp(
-                                        randomType,
-                                        enemyAircraft.getLocationX(),
-                                        enemyAircraft.getLocationY(),
-                                        0,
-                                        2
-                                );
-
-
-                                    props.add(prop); // 将重构后的道具加入列表
-
+                        if (enemyAircraft instanceof AceEnemy) {
+                            // 王牌机：全 5 种道具 (假设增加了 FREEZE)
+                            if (propRand < 0.6) { // 60% 掉落率
+                                String[] types = {"HP", "FIRE", "SUPER_FIRE", "BOMB", "FREEZE"};
+                                randomType = types[(int) (Math.random() * types.length)];
                             }
+                        } else if (enemyAircraft instanceof ExcellentEnemy || enemyAircraft instanceof EliteEnemy) {
+                            // 精锐/精英机：4 种道具 (不含 FREEZE)
+                            if (propRand < 0.3) { // 30% 掉落率
+                                String[] types = {"HP", "FIRE", "SUPER_FIRE", "BOMB"};
+                                randomType = types[(int) (Math.random() * types.length)];
+                            }
+                        }
+
+                        if (randomType != null) {
+                            AbstractProp prop = (AbstractProp) propFactory.createProp(
+                                    randomType, enemyAircraft.getLocationX(), enemyAircraft.getLocationY(), 0, 2);
+                            if (prop != null) { props.add(prop); }
                         }
                     }
                 }

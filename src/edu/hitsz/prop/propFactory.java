@@ -14,6 +14,8 @@ public class propFactory {
                 return new FireProp(x, y, speedX, speedY);
             case "SUPER_FIRE":
                 return new SuperFireProp(x, y, speedX, speedY);
+            case "FREEZE":
+                return new Freeze(x, y, speedX, speedY);
             default:
                 throw new IllegalArgumentException("Unknown Prop Type: " + type);
         }

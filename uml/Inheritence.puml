@@ -25,6 +25,7 @@ abstract class AbstractFlyingObject
     + notValid():boolean
     + vanish():void
 }
+
 abstract class AbstractAircraft
 {
 	# maxHp:int
@@ -35,17 +36,45 @@ abstract class AbstractAircraft
     + {abstract} shoot():List<BaseBullet>
  }
 
+' --- 敌机工厂模式 (Factory Method Pattern) ---
+
+interface EnemyFactory {
+    + createEnemy(): AbstractAircraft
+}
+
+class MobEnemyFactory {
+    + createEnemy(): AbstractAircraft
+}
+
+class EliteEnemyFactory {
+    + createEnemy(): AbstractAircraft
+}
+
+class ExcellentEnemyFactory {
+    + createEnemy(): AbstractAircraft
+}
+
+class AceEnemyFactory {
+    + createEnemy(): AbstractAircraft
+}
+
+class BossEnemyFactory {
+    + createEnemy(): AbstractAircraft
+}
+
+EnemyFactory <|.. MobEnemyFactory
+EnemyFactory <|.. EliteEnemyFactory
+EnemyFactory <|.. ExcellentEnemyFactory
+EnemyFactory <|.. AceEnemyFactory
+EnemyFactory <|.. BossEnemyFactory
+
+EnemyFactory ..> AbstractAircraft : <<create>>
+
+' --- 飞机相关类 ---
 
 class HeroAircraft <<Singleton>> {
     - {static} instance: HeroAircraft
-    - shootNum:int
-    - power:int
-    - direction:int
-
-    ' 私有构造方法，对应代码中的 private HeroAircraft
     - HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
-
-    ' 静态获取实例方法
     + {static} getInstance(int locationX, int locationY, int speedX, int speedY, int hp): HeroAircraft
     + forward():void
     + shoot():List<BaseBullet>
@@ -55,10 +84,7 @@ AbstractAircraft <|-- HeroAircraft
 
 class MobEnemy {
     + MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
-    + forward():void
-    + shoot():List<BaseBullet>
 }
-AbstractAircraft <|-- MobEnemy
 
 class ExcellentEnemy {
     + ExcellentEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
@@ -76,10 +102,13 @@ class AceEnemy {
     + AceEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
 }
 
+AbstractAircraft <|-- MobEnemy
 MobEnemy <|-- ExcellentEnemy
 MobEnemy <|-- EliteEnemy
 MobEnemy <|-- BossEnemy
 MobEnemy <|-- AceEnemy
+
+' --- 子弹相关类 ---
 
 abstract class BaseBullet
 {
@@ -89,48 +118,56 @@ abstract class BaseBullet
 	+ getPower():int
 }
 
-class HeroBullet {
-    + HeroBullet(int locationX, int locationY,
-     int speedX, int speedY, int power)
-}
-
-class EnemyBullet {
-    + EnemyBullet(int locationX, int locationY,
-     int speedX, int speedY, int power)
-}
+class HeroBullet
+class EnemyBullet
 
 BaseBullet <|-- HeroBullet
 BaseBullet <|-- EnemyBullet
 
-AbstractFlyingObject <|-- AbstractAircraft
-AbstractFlyingObject <|-- BaseBullet
+' --- 道具相关类与简单工厂 (Simple Factory Pattern) ---
+
+interface Item {
+    + {abstract} active(HeroAircraft hero):void
+}
 
 abstract class AbstractProp {
     + AbstractProp(int locationX, int locationY, int speedX, int speedY)
-    + {abstract} active():void
 }
 
+' AbstractProp 继承自飞行对象，并实现 Item 接口
 AbstractFlyingObject <|-- AbstractProp
+Item <|.. AbstractProp
 
 class BombProp {
-    + BombProp(int locationX, int locationY, int speedX, int speedY)
+    + active(HeroAircraft hero):void
 }
 
 class FireProp {
-    + FireProp(int locationX, int locationY, int speedX, int speedY)
+    + active(HeroAircraft hero):void
 }
 
 class HpProp {
-    + HpProp(int locationX, int locationY, int speedX, int speedY)
+    + active(HeroAircraft hero):void
 }
 
 class SuperFireProp {
-    + SuperFireProp(int locationX, int locationY, int speedX, int speedY)
+    + active(HeroAircraft hero):void
 }
 
 AbstractProp <|-- BombProp
 AbstractProp <|-- FireProp
 AbstractProp <|-- HpProp
 AbstractProp <|-- SuperFireProp
+
+class propFactory {
+    + createProp(String type, int x, int y, int speedX, int speedY): Item
+}
+
+' 工厂生产的是符合 Item 接口的对象
+propFactory ..> Item : <<create>>
+
+' --- 整体结构 ---
+AbstractFlyingObject <|-- AbstractAircraft
+AbstractFlyingObject <|-- BaseBullet
 
 @enduml

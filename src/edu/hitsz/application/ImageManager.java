@@ -3,12 +3,10 @@ package edu.hitsz.application;
 
 import edu.hitsz.aircraft.HeroAircraft;
 import edu.hitsz.aircraft.MobEnemy;
-import edu.hitsz.aircraft.enemy.EliteEnemy;
+import edu.hitsz.aircraft.enemy.*;
 import edu.hitsz.bullet.EnemyBullet;
 import edu.hitsz.bullet.HeroBullet;
-import edu.hitsz.prop.FireProp;
-import edu.hitsz.prop.HpProp;
-import edu.hitsz.prop.SuperFireProp;
+import edu.hitsz.prop.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -39,6 +37,11 @@ public class ImageManager {
     public static BufferedImage HP_PROP_IMAGE;
     public static BufferedImage FIRE_PROP_IMAGE;
     public static BufferedImage SUPER_FIRE_PROP_IMAGE;
+    public static BufferedImage EXCELLENT_ENEMY_IMAGE;
+    public static BufferedImage ACE_ENEMY_IMAGE;
+    public static BufferedImage BOSS_ENEMY_IMAGE;
+    public static BufferedImage BOMB_PROP_IMAGE;
+    public static BufferedImage FREEZE_PROP_IMAGE;
 
     static {
         try {
@@ -55,6 +58,12 @@ public class ImageManager {
             FIRE_PROP_IMAGE = ImageIO.read(new FileInputStream("src/images/prop_bullet.png"));
             SUPER_FIRE_PROP_IMAGE = ImageIO.read(new FileInputStream("src/images/prop_bulletPlus.png"));
 
+            EXCELLENT_ENEMY_IMAGE = ImageIO.read(new FileInputStream("src/images/elitePlus.png"));
+            ACE_ENEMY_IMAGE = ImageIO.read(new FileInputStream("src/images/elitePro.png"));
+            BOSS_ENEMY_IMAGE = ImageIO.read(new FileInputStream("src/images/boss.png"));
+            BOMB_PROP_IMAGE = ImageIO.read(new FileInputStream("src/images/prop_bomb.png"));
+            FREEZE_PROP_IMAGE = ImageIO.read(new FileInputStream("src/images/prop_freeze.png"));
+
             CLASSNAME_IMAGE_MAP.put(HeroAircraft.class.getName(), HERO_IMAGE);
             CLASSNAME_IMAGE_MAP.put(MobEnemy.class.getName(), MOB_ENEMY_IMAGE);
             CLASSNAME_IMAGE_MAP.put(HeroBullet.class.getName(), HERO_BULLET_IMAGE);
@@ -64,6 +73,13 @@ public class ImageManager {
             CLASSNAME_IMAGE_MAP.put(HpProp.class.getName(), HP_PROP_IMAGE);
             CLASSNAME_IMAGE_MAP.put(FireProp.class.getName(), FIRE_PROP_IMAGE);
             CLASSNAME_IMAGE_MAP.put(SuperFireProp.class.getName(), SUPER_FIRE_PROP_IMAGE);
+
+            CLASSNAME_IMAGE_MAP.put(ExcellentEnemy.class.getName(), EXCELLENT_ENEMY_IMAGE);
+            CLASSNAME_IMAGE_MAP.put(AceEnemy.class.getName(), ACE_ENEMY_IMAGE);
+            CLASSNAME_IMAGE_MAP.put(BossEnemy.class.getName(), BOSS_ENEMY_IMAGE);
+
+            CLASSNAME_IMAGE_MAP.put(BombProp.class.getName(), BOMB_PROP_IMAGE);
+            CLASSNAME_IMAGE_MAP.put(Freeze.class.getName(), FREEZE_PROP_IMAGE);
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
