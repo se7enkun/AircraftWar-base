@@ -219,9 +219,9 @@ public class Game extends JPanel {
                                         2
                                 );
 
-                                if (prop != null) {
+
                                     props.add(prop); // 将重构后的道具加入列表
-                                }
+                                
                             }
                         }
                     }
