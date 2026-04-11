@@ -1,0 +1,42 @@
+@startuml
+'设置绘图参数
+skinparam classAttributeIconSize 0
+
+interface ShootStrategy {
+    + {abstract} doShoot(AbstractAircraft aircraft) : List<BaseBullet>
+}
+
+class StraightShoot implements ShootStrategy {
+    + doShoot(AbstractAircraft aircraft) : List<BaseBullet>
+}
+
+class ScatteringShoot implements ShootStrategy {
+    + doShoot(AbstractAircraft aircraft) : List<BaseBullet>
+}
+
+class CircleShoot implements ShootStrategy {
+    + doShoot(AbstractAircraft aircraft) : List<BaseBullet>
+}
+
+abstract class AbstractAircraft {
+    - shootStrategy : ShootStrategy
+    + setShootStrategy(strategy : ShootStrategy) : void
+    + shoot() : List<BaseBullet>
+}
+
+class HeroAircraft extends AbstractAircraft {
+}
+
+class EliteEnemy extends AbstractAircraft {
+}
+
+class BossEnemy extends AbstractAircraft {
+}
+
+'关系表示
+AbstractAircraft o--> ShootStrategy : strategy
+note right of AbstractAircraft::shoot
+  return shootStrategy.doShoot(this);
+end note
+
+@enduml
