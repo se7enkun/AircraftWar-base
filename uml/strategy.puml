@@ -35,8 +35,5 @@ class BossEnemy extends AbstractAircraft {
 
 '关系表示
 AbstractAircraft o--> ShootStrategy : strategy
-note right of AbstractAircraft::shoot
-  return shootStrategy.doShoot(this);
-end note
 
 @enduml
