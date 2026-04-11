@@ -2,6 +2,7 @@ package edu.hitsz.application;
 
 import edu.hitsz.aircraft.*;
 import edu.hitsz.aircraft.enemy.AceEnemy;
+import edu.hitsz.aircraft.enemy.BossEnemy;
 import edu.hitsz.aircraft.enemy.ExcellentEnemy;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
@@ -50,6 +51,9 @@ public class Game extends JPanel {
     //当前玩家分数
     private int score = 0;
 
+    private boolean bossExists = false;
+    private int bossScoreThreshold = 200;
+
     //游戏结束标志
     private boolean gameOverFlag = false;
 
@@ -85,17 +89,24 @@ public class Game extends JPanel {
                     // 产生敌机
                     if (enemyAircrafts.size() < enemyMaxNumber) {
                         edu.hitsz.factory.EnemyFactory enemyFactory; // 声明抽象工厂接口
-                        double rand = Math.random();
+                        if (score >= bossScoreThreshold && !bossExists) {
+                            enemyFactory = new BossEnemyFactory();
+                            bossExists = true;
+                            bossScoreThreshold += 500;
+                        }
+                        else{
+                            double rand = Math.random();
 
                         // 根据概率决定使用哪个具体工厂
-                        if (rand < 0.15) {
-                            enemyFactory = new AceEnemyFactory();
-                        } else if (rand < 0.25) {
-                            enemyFactory = new ExcellentEnemyFactory();
-                        } else if (rand < 0.45) {
-                            enemyFactory = new EliteEnemyFactory();
-                        } else {
-                            enemyFactory = new MobEnemyFactory();
+                            if (rand < 0.15) {
+                                enemyFactory = new AceEnemyFactory();
+                            } else if (rand < 0.25) {
+                                enemyFactory = new ExcellentEnemyFactory();
+                            } else if (rand < 0.45) {
+                                enemyFactory = new EliteEnemyFactory();
+                            } else {
+                                enemyFactory = new MobEnemyFactory();
+                            }
                         }
 
                         // 使用工厂生产敌机，不再直接 new 具体类
@@ -139,10 +150,7 @@ public class Game extends JPanel {
             heroBullets.addAll(heroAircraft.shoot());
             // TODO 敌机射击
             for (AbstractAircraft enemy : enemyAircrafts) {
-                if (enemy instanceof EliteEnemy || enemy instanceof ExcellentEnemy ||
-                        enemy instanceof AceEnemy) {
-                    enemyBullets.addAll(enemy.shoot());
-                }
+                enemyBullets.addAll(enemy.shoot());
             }
         }
     }
@@ -204,28 +212,47 @@ public class Game extends JPanel {
                     bullet.vanish();
                     if (enemyAircraft.notValid()) {
                         score += 10;
+                        // --- 新增 Boss 死亡逻辑 ---
+                        if (enemyAircraft instanceof BossEnemy) {
+                            bossExists = false;
 
-                        String randomType = null;
-                        double propRand = Math.random();
-
-                        if (enemyAircraft instanceof AceEnemy) {
-                            // 王牌机：全 5 种道具 (假设增加了 FREEZE)
-                            if (propRand < 0.6) { // 60% 掉落率
-                                String[] types = {"HP", "FIRE", "SUPER_FIRE", "BOMB", "FREEZE"};
-                                randomType = types[(int) (Math.random() * types.length)];
-                            }
-                        } else if (enemyAircraft instanceof ExcellentEnemy || enemyAircraft instanceof EliteEnemy) {
-                            // 精锐/精英机：4 种道具 (不含 FREEZE)
-                            if (propRand < 0.3) { // 30% 掉落率
-                                String[] types = {"HP", "FIRE", "SUPER_FIRE", "BOMB"};
-                                randomType = types[(int) (Math.random() * types.length)];
+                            // Boss 掉落 3 个随机道具
+                            String[] allTypes = {"HP", "FIRE", "SUPER_FIRE", "BOMB", "FREEZE"};
+                            Random r = new Random();
+                            for (int i = 0; i < 3; i++) {
+                                String randomType = allTypes[r.nextInt(allTypes.length)];
+                                // locationX 做轻微偏移 (+30, 0, -30)，防止三个道具重叠在一起
+                                AbstractProp prop = (AbstractProp) propFactory.createProp(
+                                        randomType,
+                                        enemyAircraft.getLocationX() + (i - 1) * 30,
+                                        enemyAircraft.getLocationY(),
+                                        0, 2);
+                                props.add(prop);
                             }
                         }
+                        else{
+                            String randomType = null;
+                            double propRand = Math.random();
 
-                        if (randomType != null) {
-                            AbstractProp prop = (AbstractProp) propFactory.createProp(
-                                    randomType, enemyAircraft.getLocationX(), enemyAircraft.getLocationY(), 0, 2);
-                            if (prop != null) { props.add(prop); }
+                            if (enemyAircraft instanceof AceEnemy) {
+                                // 王牌机：全 5 种道具 (假设增加了 FREEZE)
+                                if (propRand < 0.9) { // 60% 掉落率
+                                    String[] types = {"HP", "FIRE", "SUPER_FIRE", "BOMB", "FREEZE"};
+                                    randomType = types[(int) (Math.random() * types.length)];
+                                }
+                            } else if (enemyAircraft instanceof ExcellentEnemy || enemyAircraft instanceof EliteEnemy) {
+                                // 精锐/精英机：4 种道具 (不含 FREEZE)
+                                if (propRand < 0.8) { // 30% 掉落率
+                                    String[] types = {"HP", "FIRE", "SUPER_FIRE", "BOMB"};
+                                    randomType = types[(int) (Math.random() * types.length)];
+                                }
+                            }
+
+                            if (randomType != null) {
+                                AbstractProp prop = (AbstractProp) propFactory.createProp(
+                                        randomType, enemyAircraft.getLocationX(), enemyAircraft.getLocationY(), 0, 2);
+                                props.add(prop);
+                            }
                         }
                     }
                 }
