@@ -1,0 +1,47 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' Record 实体类
+class Record {
+    - userName: String
+    - score: int
+    - time: String
+    + Record(userName: String, score: int, time: String)
+    + getUserName(): String
+    + getScore(): int
+    + getTime(): String
+    + compareTo(o: Record): int
+    + toString(): String
+}
+
+' RecordDao 接口
+interface RecordDao {
+    + getAllRecords(): List<Record>
+    + doAdd(record: Record): void
+    + doDelete(index: int): void
+}
+
+' RecordDaoImpl 实现类
+class RecordDaoImpl {
+    - records: List<Record>
+    - filePath: String
+    + RecordDaoImpl()
+    - loadRecords(): void
+    - saveRecords(): void
+    + getAllRecords(): List<Record>
+    + doAdd(record: Record): void
+    + doDelete(index: int): void
+}
+
+' Game 调用类
+class Game {
+    - checkResultAction(): void
+}
+
+' 关系映射
+RecordDao <|.. RecordDaoImpl : implement
+RecordDaoImpl o-- Record : contain
+Game ..> RecordDao : use
+Game ..> Record : create
+
+@enduml

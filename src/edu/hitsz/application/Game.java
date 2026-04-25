@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.*;
 
+import edu.hitsz.record.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * 游戏主面板，游戏启动
  * @author hitsz
@@ -57,6 +61,10 @@ public class Game extends JPanel {
     //游戏结束标志
     private boolean gameOverFlag = false;
 
+    private MusicThread bgmThread;      // 常规背景音乐
+    private MusicThread bossBgmThread;  // Boss背景音乐
+    private final String videoPath = "src/videos/"; // 统一路径前缀
+
     public Game() {
         heroAircraft =HeroAircraft.getInstance(Main.WINDOW_WIDTH / 2,
                 Main.WINDOW_HEIGHT - ImageManager.HERO_IMAGE.getHeight(),
@@ -73,10 +81,22 @@ public class Game extends JPanel {
 
     }
 
+
+    private void playSound(String fileName) {
+        // 所有的短音效 loop 参数均传 false
+        new MusicThread(videoPath + fileName, false).start();
+    }
+
+
     /**
      * 游戏启动入口，执行游戏逻辑
      */
     public void action() {
+
+        // 游戏开始，循环播放 BGM
+        bgmThread = new MusicThread(videoPath + "bgm.wav", true);
+        bgmThread.start();
+
 
         // 定时任务：绘制、对象产生、碰撞判定、及结束判定
         TimerTask task = new TimerTask() {
@@ -90,6 +110,13 @@ public class Game extends JPanel {
                     if (enemyAircrafts.size() < enemyMaxNumber) {
                         edu.hitsz.factory.EnemyFactory enemyFactory; // 声明抽象工厂接口
                         if (score >= bossScoreThreshold && !bossExists) {
+
+                            if (bgmThread != null) { bgmThread.stopMusic(); }
+
+                            //  开启 Boss BGM
+                            bossBgmThread = new MusicThread(videoPath + "bgm_boss.wav", true);
+                            bossBgmThread.start();
+
                             enemyFactory = new BossEnemyFactory();
                             bossExists = true;
                             bossScoreThreshold += 500;
@@ -211,9 +238,22 @@ public class Game extends JPanel {
                     enemyAircraft.decreaseHp(bullet.getPower());
                     bullet.vanish();
                     if (enemyAircraft.notValid()) {
+                        // 敌机坠毁时播放
+                        playSound("bullet.wav");
+
                         score += 10;
                         // --- 新增 Boss 死亡逻辑 ---
                         if (enemyAircraft instanceof BossEnemy) {
+
+                            // 1. 停止 Boss BGM
+                            if (bossBgmThread != null) {
+                                bossBgmThread.stopMusic();
+                                bossBgmThread = null;
+                            }
+                            // 2. 恢复常规 BGM
+                            bgmThread = new MusicThread(videoPath + "bgm.wav", true);
+                            bgmThread.start();
+
                             bossExists = false;
 
                             // Boss 掉落 3 个随机道具
@@ -268,11 +308,22 @@ public class Game extends JPanel {
         //道具碰撞检测
         propHitAction();
     }
+
     private void propHitAction() {
         for (AbstractProp prop : props) {
             if (prop.notValid()) { continue; }
             if (heroAircraft.crash(prop)) {
                 prop.active(heroAircraft); // 触发效果
+
+                // 根据道具类型播放不同音效
+                if (prop instanceof BombProp) {
+                    // 如果是炸弹道具，播放爆炸音效
+                    playSound("bomb_explosion.wav");
+                } else {
+                    // 其他道具（加血、火力等）播放补给音效
+                    playSound("get_supply.wav");
+                }
+
                 prop.vanish();            // 道具消失
             }
         }
@@ -297,9 +348,36 @@ public class Game extends JPanel {
     private void checkResultAction(){
         // 游戏结束检查英雄机是否存活
         if (heroAircraft.getHp() <= 0) {
-            timer.cancel(); // 取消定时器并终止所有调度任务
+
+            // 1. 停止所有正在运行的背景音乐
+            if (bgmThread != null) bgmThread.stopMusic();
+            if (bossBgmThread != null) bossBgmThread.stopMusic();
+
+            // 2. 播放游戏结束音效
+            playSound("game_over.wav");
+
+            // 已确保 HP 被置为最小 0
+            timer.cancel();
             gameOverFlag = true;
             System.out.println("Game Over!");
+
+            // 弹出输入框
+            String userName = JOptionPane.showInputDialog(this, "游戏结束，你的得分为 " + score + "。\n请输入玩家姓名：");
+            if (userName == null || userName.trim().isEmpty()) {
+                userName = "Anonymous";
+            }
+
+            // 数据持久化
+            RecordDao recordDao = new RecordDaoImpl(Main.difficulty);
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
+            Record newRecord = new Record(userName, this.score, now.format(formatter));
+            recordDao.doAdd(newRecord);
+
+            // 切换到排行榜界面
+            ScoreTable scoreTable = new ScoreTable(recordDao);
+            Main.cardPanel.add(scoreTable.getMainPanel(), "score");
+            Main.cardLayout.show(Main.cardPanel, "score");
         }
     }
 
