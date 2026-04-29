@@ -43,6 +43,10 @@ public class ImageManager {
     public static BufferedImage BOMB_PROP_IMAGE;
     public static BufferedImage FREEZE_PROP_IMAGE;
 
+    public static BufferedImage BACKGROUND_IMAGE_EASY;
+    public static BufferedImage BACKGROUND_IMAGE_NORMAL;
+    public static BufferedImage BACKGROUND_IMAGE_HARD;
+
     static {
         try {
 
@@ -80,6 +84,10 @@ public class ImageManager {
 
             CLASSNAME_IMAGE_MAP.put(BombProp.class.getName(), BOMB_PROP_IMAGE);
             CLASSNAME_IMAGE_MAP.put(Freeze.class.getName(), FREEZE_PROP_IMAGE);
+
+            BACKGROUND_IMAGE_EASY = ImageIO.read(new FileInputStream("src/images/bg.jpg"));
+            BACKGROUND_IMAGE_NORMAL = ImageIO.read(new FileInputStream("src/images/bg2.jpg"));
+            BACKGROUND_IMAGE_HARD = ImageIO.read(new FileInputStream("src/images/bg3.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);

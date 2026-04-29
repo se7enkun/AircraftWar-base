@@ -53,6 +53,15 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
         return new LinkedList<>();
     };
 
+    public void setHp(int hp) {
+        this.hp = hp;
+        this.maxHp = hp;
+    }
+
+    public void setSpeedY(int speedY) {
+        this.speedY = speedY;
+    }
+
 }
 
 

@@ -1,3 +1,4 @@
+
 package edu.hitsz.application;
 
 import javax.swing.*;
@@ -5,46 +6,46 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class StartMenu {
+    private JPanel mainPanel;
     private JButton easyButton;
     private JButton normalButton;
     private JButton hardButton;
-    private JPanel mainPanel;
 
     public StartMenu() {
-        // 简单模式
+
+
         easyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                startGame("EASY");
+                // 传入简单模式的具体实现
+                startGame("EASY", new EasyGame());
             }
         });
-        // 普通模式
+
         normalButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                startGame("NORMAL");
+                // 传入普通模式的具体实现
+                startGame("NORMAL", new NormalGame());
             }
         });
-        // 困难模式
+
         hardButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                startGame("HARD");
+                // 传入困难模式的具体实现
+                startGame("HARD", new HardGame());
             }
         });
     }
 
-    private void startGame(String difficulty) {
-        // 记录当前难度
+    private void startGame(String difficulty, BaseGame game) {
         Main.difficulty = difficulty;
-        // 实例化游戏面板并启动
-        Game game = new Game();
         Main.cardPanel.add(game, "game");
         Main.cardLayout.show(Main.cardPanel, "game");
-        game.action();
+        game.requestFocusInWindow();
+        game.action(); // 启动模板模式主循环
     }
 
-    public JPanel getMainPanel() {
-        return mainPanel;
-    }
+    public JPanel getMainPanel() { return mainPanel; }
 }

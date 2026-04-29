@@ -1,0 +1,51 @@
+@startuml
+title 模板模式 - 游戏难度控制类图
+
+abstract class BaseGame {
+    - timer: Timer
+    - heroAircraft: HeroAircraft
+    - enemyAircrafts: List<AbstractAircraft>
+    .. 模板方法 ..
+    + action(): void
+    .. 抽象方法/钩子方法 ..
+    # {abstract} getEnemyMaxNumber(): int
+    # {abstract} getEnemySpawnCycle(): int
+    # {abstract} getBossScoreThreshold(): int
+    # {abstract} createEnemyFactory(): EnemyFactory
+    # {abstract} updateDifficulty(): void
+}
+
+class EasyGame {
+    # getEnemyMaxNumber(): int
+    # getEnemySpawnCycle(): int
+    # getBossScoreThreshold(): int
+    # createEnemyFactory(): EnemyFactory
+    # updateDifficulty(): void
+}
+
+class NormalGame {
+    # getEnemyMaxNumber(): int
+    # getEnemySpawnCycle(): int
+    # getBossScoreThreshold(): int
+    # createEnemyFactory(): EnemyFactory
+    # updateDifficulty(): void
+}
+
+class HardGame {
+    # getEnemyMaxNumber(): int
+    # getEnemySpawnCycle(): int
+    # getBossScoreThreshold(): int
+    # createEnemyFactory(): EnemyFactory
+    # updateDifficulty(): void
+}
+
+BaseGame <|-- EasyGame
+BaseGame <|-- NormalGame
+BaseGame <|-- HardGame
+
+note right of BaseGame::action
+  模板方法，定义了游戏的主循环逻辑
+  其中调用了各抽象方法来获取难度参数
+end note
+
+@enduml

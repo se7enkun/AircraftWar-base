@@ -36,39 +36,7 @@ abstract class AbstractAircraft
     + {abstract} shoot():List<BaseBullet>
  }
 
-' --- 敌机工厂模式 (Factory Method Pattern) ---
 
-interface EnemyFactory {
-    + createEnemy(): AbstractAircraft
-}
-
-class MobEnemyFactory {
-    + createEnemy(): AbstractAircraft
-}
-
-class EliteEnemyFactory {
-    + createEnemy(): AbstractAircraft
-}
-
-class ExcellentEnemyFactory {
-    + createEnemy(): AbstractAircraft
-}
-
-class AceEnemyFactory {
-    + createEnemy(): AbstractAircraft
-}
-
-class BossEnemyFactory {
-    + createEnemy(): AbstractAircraft
-}
-
-EnemyFactory <|.. MobEnemyFactory
-EnemyFactory <|.. EliteEnemyFactory
-EnemyFactory <|.. ExcellentEnemyFactory
-EnemyFactory <|.. AceEnemyFactory
-EnemyFactory <|.. BossEnemyFactory
-
-EnemyFactory ..> AbstractAircraft : <<create>>
 
 ' --- 飞机相关类 ---
 
@@ -124,19 +92,16 @@ class EnemyBullet
 BaseBullet <|-- HeroBullet
 BaseBullet <|-- EnemyBullet
 
-' --- 道具相关类与简单工厂 (Simple Factory Pattern) ---
 
-interface Item {
-    + {abstract} active(HeroAircraft hero):void
-}
+
 
 abstract class AbstractProp {
     + AbstractProp(int locationX, int locationY, int speedX, int speedY)
 }
 
-' AbstractProp 继承自飞行对象，并实现 Item 接口
+' AbstractProp 继承自飞行对象
 AbstractFlyingObject <|-- AbstractProp
-Item <|.. AbstractProp
+
 
 class BombProp {
     + active(HeroAircraft hero):void
@@ -159,12 +124,8 @@ AbstractProp <|-- FireProp
 AbstractProp <|-- HpProp
 AbstractProp <|-- SuperFireProp
 
-class propFactory {
-    + createProp(String type, int x, int y, int speedX, int speedY): Item
-}
 
-' 工厂生产的是符合 Item 接口的对象
-propFactory ..> Item : <<create>>
+
 
 ' --- 整体结构 ---
 AbstractFlyingObject <|-- AbstractAircraft

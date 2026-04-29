@@ -1,0 +1,60 @@
+@startuml
+title 观察者模式 - 道具生效逻辑类图
+
+interface Observer {
+    + update(): void
+}
+
+abstract class AbstractAircraft {
+    + {abstract} update(): void
+}
+
+abstract class BaseBullet {
+    + {abstract} update(): void
+}
+
+class MobEnemy {
+    + update(): void
+}
+
+class EliteEnemy {
+    + update(): void
+}
+
+class EnemyBullet {
+    + update(): void
+}
+
+interface Subject {
+    + addObserver(observer: Observer): void
+    + removeObserver(observer: Observer): void
+    + notifyObservers(): void
+}
+
+class BombProp {
+    - observers: List<Observer>
+    + addObserver(observer: Observer): void
+    + removeObserver(observer: Observer): void
+    + notifyObservers(): void
+    + active(hero: HeroAircraft): void
+}
+
+Observer <|.. AbstractAircraft
+Observer <|.. BaseBullet
+AbstractAircraft <|-- MobEnemy
+AbstractAircraft <|-- EliteEnemy
+BaseBullet <|-- EnemyBullet
+
+Subject <|.. BombProp
+BombProp o-- Observer
+
+note left of BombProp::notifyObservers
+  遍历 observers 列表
+  调用每个 observer 的 update() 方法
+end note
+
+note right of MobEnemy::update
+  执行 vanish() 逻辑
+end note
+
+@enduml

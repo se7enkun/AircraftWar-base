@@ -22,4 +22,14 @@ public class BossEnemy extends MobEnemy {
         }
         // y 坐标保持不变，不执行 locationY += speedY;
     }
+
+    @Override
+    public void onBombActive() {
+        /* 不受影响 */
+    }
+
+    @Override
+    public void onFreezeActive() {
+        /* 不受影响 */
+    }
 }

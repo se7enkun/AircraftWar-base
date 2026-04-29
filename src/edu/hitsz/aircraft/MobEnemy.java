@@ -11,7 +11,7 @@ import java.util.List;
  * 不可射击、不掉落道具
  * @author hitsz
  */
-public class MobEnemy extends AbstractAircraft {
+public class MobEnemy extends AbstractAircraft implements edu.hitsz.observer.EnemyObserver {
 
     public MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp) {
         super(locationX, locationY, speedX, speedY, hp);
@@ -24,6 +24,17 @@ public class MobEnemy extends AbstractAircraft {
         if (locationY >= Main.WINDOW_HEIGHT ) {
             vanish();
         }
+    }
+
+    @Override
+    public void onBombActive() {
+        this.vanish(); // 坠毁
+    }
+
+    @Override
+    public void onFreezeActive() {
+        this.speedX = 0;
+        this.speedY = 0; // 永久静止
     }
 
 

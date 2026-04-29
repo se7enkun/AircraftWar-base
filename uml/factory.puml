@@ -1,0 +1,98 @@
+@startuml
+title 工厂模式结构图 (敌机工厂与道具工厂)
+
+' --- 敌机工厂模式：工厂方法模式 (Factory Method Pattern) ---
+
+package "Enemy Factory (Factory Method)" {
+
+
+    class MobEnemyFactory {
+        + createEnemy(): AbstractAircraft
+    }
+
+    class EliteEnemyFactory {
+        + createEnemy(): AbstractAircraft
+    }
+
+    class ExcellentEnemyFactory {
+        + createEnemy(): AbstractAircraft
+    }
+
+    class AceEnemyFactory {
+        + createEnemy(): AbstractAircraft
+    }
+
+    class BossEnemyFactory {
+        + createEnemy(): AbstractAircraft
+    }
+
+    ' 工厂实现关系
+    EnemyFactory <|.. MobEnemyFactory
+    EnemyFactory <|.. EliteEnemyFactory
+    EnemyFactory <|.. ExcellentEnemyFactory
+    EnemyFactory <|.. AceEnemyFactory
+    EnemyFactory <|.. BossEnemyFactory
+
+    ' 产品抽象类
+
+
+    ' 具体产品类
+    class MobEnemy
+    class EliteEnemy
+    class ExcellentEnemy
+    class AceEnemy
+    class BossEnemy
+
+    ' 产品继承关系
+
+    MobEnemy <|-- EliteEnemy
+    MobEnemy <|-- ExcellentEnemy
+    MobEnemy <|-- AceEnemy
+    MobEnemy <|-- BossEnemy
+
+    ' 工厂与产品的依赖关系
+
+    MobEnemyFactory ..> MobEnemy : <<create>>
+    EliteEnemyFactory ..> EliteEnemy : <<create>>
+    ExcellentEnemyFactory ..> ExcellentEnemy : <<create>>
+    AceEnemyFactory ..> AceEnemy : <<create>>
+    BossEnemyFactory ..> BossEnemy : <<create>>
+}
+
+' --- 道具工厂模式：简单工厂模式 (Simple Factory Pattern) ---
+
+package "Prop Factory (Simple Factory)" {
+
+    class propFactory {
+        + {static} createProp(String type, int x, int y, int speedX, int speedY): Item
+    }
+
+    interface Item {
+        + active(HeroAircraft hero): void
+    }
+
+    abstract class AbstractProp {
+        + active(HeroAircraft hero): void
+    }
+
+    class BombProp
+    class FireProp
+    class HpProp
+    class SuperFireProp
+
+    ' 道具继承与实现
+    Item <|.. AbstractProp
+    AbstractProp <|-- BombProp
+    AbstractProp <|-- FireProp
+    AbstractProp <|-- HpProp
+    AbstractProp <|-- SuperFireProp
+
+    ' 简单工厂对接口的依赖
+    propFactory ..> Item : <<create>>
+    note top of propFactory
+      根据 String 类型分支返回
+      具体的子类实例
+    end note
+}
+
+@enduml

@@ -15,4 +15,21 @@ public class AceEnemy extends MobEnemy {
         this.shootStrategy = new ScatteringShoot();
     }
 
+    @Override
+    public void onBombActive() {
+        this.decreaseHp(50); // 掉血
+    }
+
+    @Override
+    public void onFreezeActive() {
+        Runnable r = () -> {
+            int originalSpeedX = this.speedX;
+            int originalSpeedY = this.speedY;
+            this.speedX /= 2; this.speedY /= 2; // 减速
+            try { Thread.sleep(5000); } catch (InterruptedException e) { e.printStackTrace(); }
+            if (!this.notValid()) { this.speedX = originalSpeedX; this.speedY = originalSpeedY; }
+        };
+        new Thread(r).start();
+    }
+
 }
